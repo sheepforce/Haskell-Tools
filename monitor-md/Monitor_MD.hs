@@ -22,6 +22,8 @@ main = do
       mdSteps = mdsteps arguments
       atomList = intListFromInput (atoms arguments)
   
+  -- tell the user what he did
+  putStr ("\n will monitor the trajectory in " ++ inputFile ++ " for ")
   case (length atomList) of 0 -> putStrLn "[ERROR]"
                             1 -> putStrLn "[ERROR]"
                             2 -> putStrLn "distance \n"
@@ -41,8 +43,8 @@ main = do
   
   -- prints the monitored list
   outputHandle <- openFile outputFile WriteMode
-  printMonitorResult analysedList
-  
+  printMonitorResult outputHandle analysedList
+  hClose outputHandle
   
 
 {- ############################## -}
@@ -76,11 +78,11 @@ monitorDihedral :: (Floating a) => [[Vector a]] -> [a]
 monitorDihedral geometryList = [dihedralPoint (geometryList!!0!!a) (geometryList!!1!!a) (geometryList!!2!!a) (geometryList!!3!!a) | a <- [0..((length (geometryList!!0)) - 1)]]
 
 -- prints a gnuplot readable list
-printMonitorResult :: [Float] -> IO()
-printMonitorResult [] = return ()
-printMonitorResult [a] = print  a
-printMonitorResult (a:b) = do print a
-			      printMonitorResult b
+printMonitorResult :: Handle -> [Float] -> IO()
+printMonitorResult file [] = return ()
+printMonitorResult file [a] = hPrint file a
+printMonitorResult file (a:b) = do hPrint file a
+			           printMonitorResult file b
 
 analyseGeomList :: (Floating a) => [[Vector a]] -> [a]
 analyseGeomList geomList

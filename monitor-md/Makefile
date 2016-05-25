@@ -1,4 +1,5 @@
 # the installation prefix where it will be installed
+PREFIX		= ~/.local/bin
 
 # the Haskell compiler
 HC		= ghc
@@ -19,4 +20,4 @@ clean:
 	rm -f Monitor_MD
 
 install: all
-	cp Monitod_MD
+	cp Monitor_MD $(PREFIX)/.
