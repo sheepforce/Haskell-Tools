@@ -42,9 +42,13 @@ main = do
   let analysedList = analyseGeomList geometryMonitorList
   
   -- prints the monitored list
-  outputHandle <- openFile outputFile WriteMode
-  printMonitorResult outputHandle analysedList
-  hClose outputHandle
+  if (outputFile == "stdout")
+     then do
+       printMonitorResult stdout analysedList
+     else do
+       outputHandle <- openFile outputFile WriteMode
+       printMonitorResult outputHandle analysedList
+       hClose outputHandle
   
 
 {- ############################## -}
