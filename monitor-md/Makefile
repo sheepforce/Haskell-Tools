@@ -10,14 +10,14 @@ HFLAGS		= -threaded
 all: Monitor_MD
 
 Monitor_MD:
-	$(HC) --make $(HFLAGS) Monitor_MD
+	$(HC) --make $(HFLAGS) AnaGeom_xyz
 
 clean: 
-	rm -f Monitor_MD.hi Monitor_MD.o
+	rm -f AnaGeom_xyz.hi AnaGeom_xyz.o
 	rm -f Algebra.hi Algebra.o
 	rm -f Chemistry/XYZ.hi Chemistry/XYZ.o
-	rm -f MonitorOpt.o MonitorOpt.hi
-	rm -f Monitor_MD
+	rm -f AnaGeom_xyzOpts.o AnaGeom_xyzOpts.hi
+	rm -f AnaGeom_xyz
 
 install: all
-	cp Monitor_MD $(PREFIX)/.
+	cp AnaGeom_xyz $(PREFIX)/.
