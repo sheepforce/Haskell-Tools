@@ -59,7 +59,7 @@ main = do
 {- ############################## -}
 
 -- takes a string and converts it to a list of integers
-intListFromInput :: [Char] -> [Int]
+intListFromInput :: String -> [Int]
 intListFromInput a = map (read :: String -> Int) b
   where b = words a
   

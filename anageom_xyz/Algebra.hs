@@ -29,14 +29,20 @@ radian2deg a = a / ((2 * pi) / 360.0)
 deg2radian :: (Floating a) => a -> a
 deg2radian a = a / (360.0 / (2 * pi))
 
+dihedralPoint :: (Floating a) => Vector a -> Vector a -> Vector a -> Vector a -> a
+dihedralPoint a b c d = angleVec nVecABCPlane nVecBCDPlane
+  where nVecABCPlane = crossProd (subVec a b) (subVec c b)
+	nVecBCDPlane = crossProd (subVec b c) (subVec d c)
 
+{- THIS FUNCTION IS NOT WORKING CORRECTLY
 {- dihedralPoint takes 4 Points that define two planes and calculates the dihedral angle between them -}
 dihedralPoint :: (Floating a) => Vector a -> Vector a -> Vector a -> Vector a -> a
 dihedralPoint a b c d = angleVec nVecABCPlane nVecBCDPlane
   where nVecABCPlane = normalVec abcPlane
 	nVecBCDPlane = normalVec bcdPlane
-	abcPlane     = paramForm a b c
-	bcdPlane     = paramForm b c d
+	abcPlane     = paramForm b a c
+	bcdPlane     = paramForm c b d
+-}
 
 {- angleVec takes two vectors and calculates the angle between them -}
 angleVec :: (Floating a) => Vector a -> Vector a -> a
@@ -77,7 +83,7 @@ distPoint a b = lengthVec (subVec a b)
 
 {- anglePoint takes three points (defined as vectors and returns the angle between 1 2 3 -}
 anglePoint :: (Floating a) => Vector a -> Vector a -> Vector a -> a
-anglePoint a b c = angleVec (subVec a b) (subVec b c)
+anglePoint a b c = angleVec (subVec a b) (subVec c b)
 
 {- addVec takes two vectors and adds them elementwise -}
 addVec :: (Num a) => Vector a -> Vector a -> Vector a
