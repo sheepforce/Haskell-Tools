@@ -2,24 +2,33 @@ module Algebra
 ( Vector(..)
 , radian2deg
 , deg2radian
+, dihedralPoint
 , angleVec
 , normalVec
 , paramForm
 , crossProd
 , scalarProd
 , lengthVec
-, dihedralPoint
 , distPoint
 , anglePoint
 , addVec
-, subVec
 , scalMultVec
+, subVec
 , list2vec
 , vec2list
+, cart2spherical
+, spherical2cart
+, rotatePoint
+, rotateGeom
+--
+, recenterGeom
 ) where
 
 {- defines a vector in R³ -}
-data Vector a = Vector a a a deriving (Show)
+data Vector a = Vector a a a deriving (Show,Ord,Eq)
+
+
+{- standard algebraic functions -}
 
 {- converts radian to degree (360 is a circle) -}
 radian2deg :: (Floating a) => a -> a
@@ -104,3 +113,47 @@ list2vec [a,b,c] = Vector a b c
 {- vec2list takes a vector and converts it to a list of 3 values -}
 vec2list :: (Num a) => Vector a -> [a]
 vec2list (Vector a b c) = [a,b,c]
+
+{- cart2spherical takes a vector in cartesian coordinates and converts it
+to a vector in spherical coordinates with the ordering r theta phi based on the
+Wikipedia notation https://en.wikipedia.org/wiki/Spherical_coordinate_system -}
+cart2spherical :: (RealFloat a, Ord a) => Vector a -> Vector a
+cart2spherical (Vector x y z) = Vector r theta phi 
+  where
+    r     = lengthVec (Vector x y z)
+    theta = acos (z / r)
+    phi   = atan2 y x
+
+{- spherical2cart takes a vector in spherical coordinates and converts it
+to a vector in cartesian coordinates with the ordering x y z based on the
+Wikipedia notation https://en.wikipedia.org/wiki/Spherical_coordinate_system -}
+spherical2cart :: (Floating a) => Vector a -> Vector a
+spherical2cart (Vector r theta phi) = Vector x y z
+  where x = r * sin theta * cos phi
+	y = r * sin theta * sin phi
+	z = r * cos theta
+
+
+{- ###################################################### -}
+{- editing functions, mainly useful for chemicals systems -}
+{- ###################################################### -}
+
+{- recenterGeom takes a list of atom coordinates (molecule) a and substracts a vector b
+of each. If b is an atomic position itself, it will be centered -}
+recenterGeom :: (Floating a) => [Vector a] -> Vector a -> [Vector a]
+recenterGeom a b = [subVec c b | c <- a]
+
+{- rotatePoint takes a point in spherical coordinates an rotates in 2 axis around the origin
+about rotTheta and rotPhi -}
+rotatePoint :: (RealFloat a) => Vector a -> a -> a -> Vector a
+rotatePoint (Vector r theta phi) rotTheta rotPhi = Vector r (theta + rotTheta) (phi + rotPhi)
+
+{- rotates a list of coordinates (atoms) about rotTheta and rotPhi -}
+rotateGeom :: (RealFloat a) => [Vector a] -> a -> a -> [Vector a]
+rotateGeom a rotTheta rotPhi = [addVec b c | b <- a]
+  where c = Vector 0.0 rotTheta rotPhi
+
+
+{- ############################## -}
+{- helper functions, not exported -}
+{- ############################## -}

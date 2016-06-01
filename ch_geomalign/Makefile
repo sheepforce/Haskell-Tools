@@ -12,12 +12,12 @@ HINCLUDE	= ../modules
 all: Monitor_MD
 
 Monitor_MD:
-	$(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_GeomAna
+	$(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_GeomAlign
 
 clean: 
-	rm -f Ch_GeomAna.hi Ch_GeomAna.o
-	rm -f Ch_GeomAna_Opts.o Ch_GeomAna_Opts.hi
-	rm -f Ch_GeomAna
+	rm -f Ch_GeomAlign.hi Ch_GeomAlign.o
+	rm -f Ch_GeomAlign_Opts.o Ch_GeomAlign_Opts.hi
+	rm -f Ch_GeomAlign
 
 install: all
-	cp Ch_GeomAna $(PREFIX)/ch_geomana
+	cp Ch_GeomAlign $(PREFIX)/ch_geomalign

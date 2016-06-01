@@ -5,7 +5,7 @@ import System.Environment
 import Algebra
 import Chemistry.XYZ
 import System.Console.CmdArgs
-import Ch_GeoAna_Opts
+import Ch_GeomAna_Opts
 
 
 {- ############################################################## -}
@@ -14,7 +14,7 @@ import Ch_GeoAna_Opts
 
 main = do
   -- get input file, output file and list of atoms from command line arguments
-  arguments <- cmdArgs ch_GeoAna_Opts
+  arguments <- cmdArgs ch_GeomAna_Opts
   
   -- bind input from command line to useful variables
   let inputFile = input arguments
