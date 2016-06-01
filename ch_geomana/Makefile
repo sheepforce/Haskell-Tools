@@ -9,9 +9,9 @@ HFLAGS		= -threaded
 
 HINCLUDE	= ../modules
 
-all: Monitor_MD
+all: Ch_GeomAna
 
-Monitor_MD:
+Ch_GeomAna:
 	$(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_GeomAna
 
 clean: 

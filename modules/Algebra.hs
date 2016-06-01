@@ -116,17 +116,18 @@ vec2list (Vector a b c) = [a,b,c]
 
 {- cart2spherical takes a vector in cartesian coordinates and converts it
 to a vector in spherical coordinates with the ordering r theta phi based on the
-Wikipedia notation https://en.wikipedia.org/wiki/Spherical_coordinate_system -}
+Wikipedia notation, that is declared as "physics" https://en.wikipedia.org/wiki/Spherical_coordinate_system -}
 cart2spherical :: (RealFloat a, Ord a) => Vector a -> Vector a
 cart2spherical (Vector x y z) = Vector r theta phi 
   where
     r     = lengthVec (Vector x y z)
-    theta = acos (z / r)
+    theta = if (r == 0.0)
+	       then 0.0 else acos (z / r)
     phi   = atan2 y x
 
 {- spherical2cart takes a vector in spherical coordinates and converts it
 to a vector in cartesian coordinates with the ordering x y z based on the
-Wikipedia notation https://en.wikipedia.org/wiki/Spherical_coordinate_system -}
+Wikipedia notation, that is declared as "physics" https://en.wikipedia.org/wiki/Spherical_coordinate_system -}
 spherical2cart :: (Floating a) => Vector a -> Vector a
 spherical2cart (Vector r theta phi) = Vector x y z
   where x = r * sin theta * cos phi

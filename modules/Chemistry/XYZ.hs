@@ -4,7 +4,10 @@ module Chemistry.XYZ
 , getCoordFromAtom
 , trajAtomLines
 , trajAtomCoordList
+, getElement
+, printSepXYZ
 ) where
+import System.IO
 
 {- taking a xyz file and reading the number of atoms -}
 nAtoms :: String -> Int
@@ -38,3 +41,23 @@ and returns a list of coordinates for this atom in each MD step -}
 trajAtomCoordList :: String -> Int -> Int -> [[Float]]
 trajAtomCoordList content atom mdSteps = [getCoordFromLine content a | a <- b]
   where b = take mdSteps (trajAtomLines (nAtoms content) atom)
+
+{- takes a xyz file and tells the element symbol of an atom -}
+getElement :: String -> Int -> String
+getElement content atom = head a
+  where a = words b
+        b = c!!(atom + 1)
+        c = lines content
+
+
+{- ############ -}
+{- IO functions -}
+{- ############ -}
+
+{- takes a file handle, a list of element symbols and a list of coordinates and
+prints them out to a xyz file -}
+printSepXYZ :: Handle -> [String] -> [[Float]] -> IO()
+printSepXYZ file [] [] = return ()
+printSepXYZ file [e] [(x:y:z:_)] = hPutStrLn file (e ++ "     " ++ (show x) ++ "     " ++ (show y) ++ "     " ++ (show z))
+printSepXYZ file (e:et) (c:ct) = do printSepXYZ file [e] [c]
+				    printSepXYZ file et ct
