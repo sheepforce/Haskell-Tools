@@ -24,27 +24,30 @@ main = do
   geomHandle <- openFile inputFile ReadMode
   geomRawContents <- hGetContents geomHandle
   
-      -- convert the atom coordinates to a list of vectors
-  let moleculeGeometryOrig = [list2vec (getCoordFromAtom geomRawContents a) | a <- [1..(nAtoms geomRawContents)]]
-      -- recenter the geometry to a chosen origin, here a chose atom (the first one entered)
-      moleculeGeometryRecenter = recenterGeom moleculeGeometryOrig (moleculeGeometryOrig!!((atomList!!0) - 1))
-      -- convert the recentered geometry to spherical coordinates
-      moleculeGeometryRecenter_spher = map (cart2spherical) moleculeGeometryRecenter
-      -- get theta of the second atom entered
-      rotTheta = (vec2list (moleculeGeometryRecenter_spher!!((atomList!!1) - 1)))!!1
-      -- rotate that recentered geometry so that entered atom number 2 is on the z-Axis
-      moleculeGeometryToAxis_spher = [subVec a (Vector 0 rotTheta 0) | a <- moleculeGeometryRecenter_spher]
-      -- get phi of the third atom entered
-      rotPhi = (vec2list (moleculeGeometryRecenter_spher!!((atomList!!2) - 1)))!!2
-      -- rotate the axis-aligned geometry so that entered atom number 3 is on the xz-Plane
-      moleculeGeometryToPlane_spher = [subVec a (Vector 0 0 rotPhi) | a <- moleculeGeometryToAxis_spher]
-      -- reconvert the final structure to cartesian coordinates
-      moleculeGeometryToPlane = map (spherical2cart) moleculeGeometryToPlane_spher
-      -- convert final structure in cartesian to list type
-      moleculeGeometryToPlane_list = map (vec2list) moleculeGeometryToPlane
-      -- finally get the elements from the original file and the number of atoms
+  let -- get the elements from the original file and the number of atoms
       moleculeElements = [getElement geomRawContents a | a <- [1..(nAtoms geomRawContents)]]
       moleculeAtomNumber = nAtoms geomRawContents
+      -- convert the atom coordinates to a list of vectors
+      moleculeGeometryOrig = [list2vec (getCoordFromAtom geomRawContents a) | a <- [1..(nAtoms geomRawContents)]]
+      -- recenter the geometry to a chosen origin, here a chose atom (the first one entered)
+      moleculeGeometryRecenter = recenterGeom moleculeGeometryOrig (moleculeGeometryOrig!!((atomList!!0) - 1))
+      -- rotate the geometry that second atom chosen lays in the ZY-plane
+      -- therefore get the necessary rotation angle based on second chosen atom ...
+      rotationAngle_2toZY = getP2ZYByZAngle (moleculeGeometryRecenter!!((atomList!!1) - 1))
+      -- ... and apply the rotation around Z-Axis
+      moleculeGeometry2inZY = [rotateAroundZ a rotationAngle_2toZY | a <- moleculeGeometryRecenter]
+      -- second rotation for atom 2, so that it lies also in the XZ-plane and therefore on the z-Axis overall
+      -- therefore get the necessary rotation angle based on second chosen atom ...
+      rotationAngle_2toZX = getP2XZByXAngle (moleculeGeometry2inZY!!((atomList!!1) - 1))
+      -- ... and apply the rotation around X-Axis
+      moleculeGeometry2onZ = [rotateAroundX a rotationAngle_2toZX | a <- moleculeGeometry2inZY]
+      -- rotate the geometry that third atom chosen lays in the ZY-plane
+      -- therefore get the necessary rotation angle based on third chosen atom ...
+      rotationAngle_3toZY = getP2ZYByZAngle (moleculeGeometry2onZ!!((atomList!!2) - 1))
+      -- ... and apply the rotation around X-Axis
+      moleculeGeometry2onZ3inZY = [rotateAroundZ a rotationAngle_3toZY | a <- moleculeGeometry2onZ]
+      
+      
       
   if (verbose arguments == True)
      then do
@@ -53,52 +56,38 @@ main = do
        
        putStrLn "\n This is the recentered geometry"
        printSepXYZ stdout moleculeElements (map vec2list moleculeGeometryRecenter)
-       print moleculeGeometryOrig
        
-       putStrLn "\n This is the recentered geometry in spherical coordinates"
-       printSepXYZ stdout moleculeElements (map vec2list moleculeGeometryRecenter_spher)
+       putStrLn "\n This is the Vector of the chosen atom"
+       print (moleculeGeometryOrig!!((atomList!!1) - 1))
        
-       putStrLn "\n This is the recentered geometry in spherical coordinates, BACKTRANSFORMED"
-       printSepXYZ stdout moleculeElements (map vec2list (map spherical2cart moleculeGeometryRecenter_spher))
+       putStrLn "\n This is the rotation angle around Z-axis"
+       print rotationAngle_2toZY
        
-       putStrLn "\n This is the Theta of the second atom chosen"
-       print rotTheta
+       putStrLn "\n This is the geometry with second atom in ZY-plane"
+       printSepXYZ stdout moleculeElements (map vec2list moleculeGeometry2inZY)
        
-       putStrLn "\n This is the geometry in spherical coordinates, rotated so that the second atom is aligned to z-Axis (theta=0)"
-       printSepXYZ stdout moleculeElements (map vec2list moleculeGeometryToAxis_spher)
+       putStrLn "\n This is the rotation angle around X-axis"
+       print rotationAngle_2toZX
        
-       putStrLn "\n This is the geometry in spherical coordinates, rotated so that the second atom is aligned to z-Axis (theta=0), BACKTRANSFORMED"
-       printSepXYZ stdout moleculeElements (map vec2list (map spherical2cart moleculeGeometryToAxis_spher))
+       putStrLn "\n This is the geometry with second atom on Z-axis"
+       printSepXYZ stdout moleculeElements (map vec2list moleculeGeometry2onZ)
        
-       putStrLn "\n This is the Phi of the third atom chosen"
-       print rotPhi
+       putStrLn "\n This is the rotation angle around Z-axis for third atom"
+       print rotationAngle_3toZY
        
-       putStrLn "\n This is the final geometry in spherical coordinates"
-       print moleculeGeometryToPlane_spher
-       
-       putStrLn "\n This is the final geometry in cartesian coordinates"
-       print moleculeGeometryToPlane
-       
-       putStrLn "\n This is the final geometry in cartesian as list"
-       print moleculeGeometryToPlane_list
-       
-       putStrLn "\n This is the list of elements"
-       print moleculeElements
-       
-       putStrLn "\n Geometry has this amount of atoms"
-       print moleculeAtomNumber
+       putStrLn "\n This is the geometry with second atom on Z-Axis and third in YZ-plane"
+       printSepXYZ stdout moleculeElements (map vec2list moleculeGeometry2onZ3inZY)
      else return ()
-  
+
   if (outputFile == "stdout")
      then do
        hPutStrLn stdout ((show moleculeAtomNumber) ++ "\n")
-       printSepXYZ stdout moleculeElements moleculeGeometryToPlane_list
+       printSepXYZ stdout moleculeElements (map vec2list moleculeGeometry2onZ3inZY)
      else do
        outputHandle <- openFile outputFile WriteMode
        hPutStrLn outputHandle ((show moleculeAtomNumber) ++ "\n")
-       printSepXYZ outputHandle moleculeElements moleculeGeometryToPlane_list
-       hClose outputHandle
-    
+       printSepXYZ outputHandle moleculeElements (map vec2list moleculeGeometry2onZ3inZY)
+       hClose outputHandle    
 
 
 {- ############################## -}

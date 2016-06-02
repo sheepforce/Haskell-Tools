@@ -18,10 +18,17 @@ module Algebra
 , vec2list
 , cart2spherical
 , spherical2cart
-, rotatePoint
-, rotateGeom
 --
 , recenterGeom
+, rotateAroundX
+, rotateAroundY
+, rotateAroundZ
+, getP2ZYByZAngle
+, getP2ZXByZAngle
+, getP2YZByYAngle
+, getP2YXByYAngle
+, getP2XYByXAngle
+, getP2XZByXAngle
 ) where
 
 {- defines a vector in R³ -}
@@ -144,15 +151,53 @@ of each. If b is an atomic position itself, it will be centered -}
 recenterGeom :: (Floating a) => [Vector a] -> Vector a -> [Vector a]
 recenterGeom a b = [subVec c b | c <- a]
 
-{- rotatePoint takes a point in spherical coordinates an rotates in 2 axis around the origin
-about rotTheta and rotPhi -}
-rotatePoint :: (RealFloat a) => Vector a -> a -> a -> Vector a
-rotatePoint (Vector r theta phi) rotTheta rotPhi = Vector r (theta + rotTheta) (phi + rotPhi)
+{- rotate a point around the x axis. Taking a vector and an angle -}
+rotateAroundX :: (Floating a) => Vector a -> a -> Vector a
+rotateAroundX (Vector x y z) a = Vector x yn zn
+  where yn = y * cos (a) - z * sin (a)
+	zn = y * sin (a) + z * cos (a)
 
-{- rotates a list of coordinates (atoms) about rotTheta and rotPhi -}
-rotateGeom :: (RealFloat a) => [Vector a] -> a -> a -> [Vector a]
-rotateGeom a rotTheta rotPhi = [addVec b c | b <- a]
-  where c = Vector 0.0 rotTheta rotPhi
+{- rotate a point around the y axis. Taking a vector and an angle -}
+rotateAroundY :: (Floating a) => Vector a -> a -> Vector a
+rotateAroundY (Vector x y z) a = Vector xn y zn
+  where xn = z * sin (a) + x * cos (a)
+	zn = z * cos (a) - x * sin (a)
+
+{- rotate a point around the z axis. Taking a vector and an angle -}
+rotateAroundZ :: (Floating a) => Vector a -> a -> Vector a
+rotateAroundZ (Vector x y z) a = Vector xn yn z
+  where xn = x * cos (a) - y * sin (a)
+	yn = x * sin (a) + y * cos (a)
+
+{- getP2ZYByZAngle takes a vector and returns the rotation angle for aligning
+this point to the ZY plane by rotation aroud Z-Axis -}
+getP2ZYByZAngle :: (Floating a) => Vector a -> a
+getP2ZYByZAngle (Vector x y z) = (-2) * atan ((y - sqrt (x^2 + y^2)) / x)
+
+{- getP2ZXByZAngle takes a vector and returns the rotation angle for aligning
+this point to the ZX plane by rotation aroud Z-Axis -}
+getP2ZXByZAngle :: (Floating a) => Vector a -> a
+getP2ZXByZAngle (Vector x y z) = 2 * atan ((x - sqrt (x^2 + y^2)) / y)
+
+{- getP2YZByYAngle takes a vector and returns the rotation angle for aligning
+this point to the YZ plane by rotation aroud Y-Axis -}
+getP2YZByYAngle :: (Floating a) => Vector a -> a
+getP2YZByYAngle (Vector x y z) = 2 * atan ((z - sqrt (x^2 + z^2)) / x)
+
+{- getP2YXByYAngle takes a vector and returns the rotation angle for aligning
+this point to the YX plane by rotation aroud Y-Axis -}
+getP2YXByYAngle :: (Floating a) => Vector a -> a
+getP2YXByYAngle (Vector x y z) = (-2) * atan ((x - sqrt (x^2 + z^2)) / z)
+
+{- getP2XYByXAngle takes a vector and returns the rotation angle for aligning
+this point to the XY plane by rotation aroud X-Axis -}
+getP2XYByXAngle :: (Floating a) => Vector a -> a
+getP2XYByXAngle (Vector x y z) = 2 * atan ((y - sqrt (y^2 + z^2)) / z)
+
+{- getP2XYByXAngle takes a vector and returns the rotation angle for aligning
+this point to the XZ plane by rotation aroud X-Axis -}
+getP2XZByXAngle :: (Floating a) => Vector a -> a
+getP2XZByXAngle (Vector x y z) = (-2) * atan ((z - sqrt (y^2 + z^2)) / y)
 
 
 {- ############################## -}
