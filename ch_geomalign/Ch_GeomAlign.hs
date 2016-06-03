@@ -19,11 +19,13 @@ main = do
   let inputFile = input arguments
       outputFile = output arguments
       atomList = intListFromInput (atoms arguments)
+      mdSteps = mdsteps arguments
   
   -- reading the xyz file
   geomHandle <- openFile inputFile ReadMode
   geomRawContents <- hGetContents geomHandle
   
+  {-
   let -- get the elements from the original file and the number of atoms
       moleculeElements = [getElement geomRawContents a | a <- [1..(nAtoms geomRawContents)]]
       moleculeAtomNumber = nAtoms geomRawContents
@@ -78,6 +80,15 @@ main = do
        putStrLn "\n This is the geometry with second atom on Z-Axis and third in YZ-plane"
        printSepXYZ stdout moleculeElements (map vec2list moleculeGeometry2onZ3inZY)
      else return ()
+     -}
+  
+  let -- get the elements from the original file and the number of atoms
+      moleculeElements = [getElement geomRawContents a | a <- [1..(nAtoms geomRawContents)]]
+      moleculeAtomNumber = nAtoms geomRawContents
+      -- read the coordinates for mdSteps steps in a trajectory
+      moleculeGeometriesOrigList = getGeometriesFromTraj geomRawContents mdSteps
+      -- convert this to a [[Vector]]
+      moleculeGeometriesOrigVec = [map list2vec (moleculeGeometriesOrig!!a) | a <- [0..(mdSteps - 1)]]
 
   if (outputFile == "stdout")
      then do

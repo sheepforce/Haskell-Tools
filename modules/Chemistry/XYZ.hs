@@ -5,6 +5,8 @@ module Chemistry.XYZ
 , trajAtomLines
 , trajAtomCoordList
 , getElement
+, getGeometriesFromTraj
+--
 , printSepXYZ
 ) where
 import System.IO
@@ -48,6 +50,15 @@ getElement content atom = head a
   where a = words b
         b = c!!(atom + 1)
         c = lines content
+
+ {- getGeometriesFromTraj IS A COMPLICATED FUNCTION. It takes a simple XYZ trajectory content and a number
+ of mdSteps as input and returns a [[[Float]]]. The outer layer of this list is the mdStep, the middle layer
+ is indexing the atoms in this mdStep and the inner layer is the actual coordinate of this atom -}
+getGeometriesFromTraj :: String -> Int -> [[[Float]]]
+getGeometriesFromTraj content mdSteps = a
+  where a = [[getCoordFromLine content stepLine | stepLine <- (c!!b)] | b <- [0..(mdSteps - 1)]]
+	c = take mdSteps [[(1 + 2 + a)..(2 + a + d)] | a <- [0,(d + 2)..]]
+	d = nAtoms content
 
 
 {- ############ -}
