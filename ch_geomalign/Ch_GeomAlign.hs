@@ -130,7 +130,7 @@ main = do
        printMDXYZ stdout moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometries2onZ3inZY!!a) | a <- [0..(mdSteps - 1)]])
      else do
        outputHandle <- openFile outputFile WriteMode
-       printMDXYZ stdout moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometries2onZ3inZY!!a) | a <- [0..(mdSteps - 1)]])
+       printMDXYZ outputHandle moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometries2onZ3inZY!!a) | a <- [0..(mdSteps - 1)]])
        hClose outputHandle    
 
 
