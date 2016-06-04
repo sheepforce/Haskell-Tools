@@ -88,16 +88,49 @@ main = do
       -- read the coordinates for mdSteps steps in a trajectory
       moleculeGeometriesOrigList = getGeometriesFromTraj geomRawContents mdSteps
       -- convert this to a [[Vector]]
-      moleculeGeometriesOrigVec = [map list2vec (moleculeGeometriesOrig!!a) | a <- [0..(mdSteps - 1)]]
+      moleculeGeometriesOrigVec = [map list2vec (moleculeGeometriesOrigList!!a) | a <- [0..(mdSteps - 1)]]
+      -- recenter the geometry to a chosen origin, here a chose atom (the first one entered)
+      moleculeGeometriesRecenter = [recenterGeom (moleculeGeometriesOrigVec!!a) (moleculeGeometriesOrigVec!!a!!((atomList!!0) - 1)) | a <- [0..(mdSteps - 1)]]
+      -- rotate the geometry that second atom chosen lays in the ZY-plane
+      -- therefore get the necessary rotation angle based on second chosen atom ...
+      rotationAngles_2toZY = [getP2ZYByZAngle (moleculeGeometriesRecenter!!a!!((atomList!!1) - 1)) | a <- [0..(mdSteps - 1)]]
+      -- ... and apply the rotation around Z-Axis
+      moleculeGeometry2inZY = [[rotateAroundZ a (rotationAngles_2toZY!!b) | a <- (moleculeGeometriesRecenter!!b)] | b <- [0..(mdSteps - 1)]]
+      -- second rotation for atom 2, so that it lies also in the XZ-plane and therefore on the z-Axis overall
+      -- therefore get the necessary rotation angle based on second chosen atom ...
+      rotationAngles_2toZX = [getP2XZByXAngle (moleculeGeometry2inZY!!a!!((atomList!!1) - 1)) | a <- [0..(mdSteps - 1)]]
+      -- ... and apply the rotation around X-Axis
+      moleculeGeometry2onZ = [[rotateAroundX a (rotationAngles_2toZX!!b) | a <- (moleculeGeometry2inZY!!b)] | b <- [0..(mdSteps - 1)]]
+      -- rotate the geometry that third atom chosen lays in the ZY-plane
+      -- therefore get the necessary rotation angle based on third chosen atom ...
+      rotationAngles_3toZY = [getP2ZYByZAngle (moleculeGeometry2onZ!!a!!((atomList!!2) - 1)) | a <- [0..(mdSteps - 1)]]
+      -- ... and apply the rotation around X-Axis
+      moleculeGeometries2onZ3inZY = [[rotateAroundZ a (rotationAngles_3toZY!!b) | a <- (moleculeGeometry2onZ!!b)] | b <- [0..(mdSteps - 1)]]
+  
+  if (verbose arguments == True)
+     then do
+       putStrLn " These are the original geometries"
+       printMDXYZ stdout moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometriesOrigVec!!a) | a <- [0..(mdSteps - 1)]])
+       
+       putStrLn "\n These are the recentered geometries"
+       printMDXYZ stdout moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometriesRecenter!!a) | a <- [0..(mdSteps - 1)]])
+       
+       putStrLn "\n These are the geometries with second atom in ZY-plane"
+       printMDXYZ stdout moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometry2inZY!!a) | a <- [0..(mdSteps - 1)]])
+       
+       putStrLn "\n These are the geometries with second atom on Z-axis"
+       printMDXYZ stdout moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometry2onZ!!a) | a <- [0..(mdSteps - 1)]])
+       
+       putStrLn "\n These are the geometries with second atom on Z-Axis and third in YZ-plane"
+       printMDXYZ stdout moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometries2onZ3inZY!!a) | a <- [0..(mdSteps - 1)]])
+     else return ()
 
   if (outputFile == "stdout")
      then do
-       hPutStrLn stdout ((show moleculeAtomNumber) ++ "\n")
-       printSepXYZ stdout moleculeElements (map vec2list moleculeGeometry2onZ3inZY)
+       printMDXYZ stdout moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometries2onZ3inZY!!a) | a <- [0..(mdSteps - 1)]])
      else do
        outputHandle <- openFile outputFile WriteMode
-       hPutStrLn outputHandle ((show moleculeAtomNumber) ++ "\n")
-       printSepXYZ outputHandle moleculeElements (map vec2list moleculeGeometry2onZ3inZY)
+       printMDXYZ stdout moleculeAtomNumber (replicate mdSteps moleculeElements) ([map vec2list (moleculeGeometries2onZ3inZY!!a) | a <- [0..(mdSteps - 1)]])
        hClose outputHandle    
 
 
@@ -109,10 +142,3 @@ main = do
 intListFromInput :: String -> [Int]
 intListFromInput a = map (read :: String -> Int) b
   where b = words a
-
--- prints a gnuplot readable list
-printXYZResult :: Handle -> [Float] -> IO()
-printXYZResult file [] = return ()
-printXYZResult file [a] = hPrint file a
-printXYZResult file (a:b) = do hPrint file a
-			       printXYZResult file b

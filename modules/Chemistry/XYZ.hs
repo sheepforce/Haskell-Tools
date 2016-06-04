@@ -8,6 +8,7 @@ module Chemistry.XYZ
 , getGeometriesFromTraj
 --
 , printSepXYZ
+, printMDXYZ
 ) where
 import System.IO
 
@@ -67,8 +68,22 @@ getGeometriesFromTraj content mdSteps = a
 
 {- takes a file handle, a list of element symbols and a list of coordinates and
 prints them out to a xyz file -}
-printSepXYZ :: Handle -> [String] -> [[Float]] -> IO()
-printSepXYZ file [] [] = return ()
-printSepXYZ file [e] [(x:y:z:_)] = hPutStrLn file (e ++ "     " ++ (show x) ++ "     " ++ (show y) ++ "     " ++ (show z))
-printSepXYZ file (e:et) (c:ct) = do printSepXYZ file [e] [c]
-				    printSepXYZ file et ct
+printSepXYZ :: Handle -> Int -> [String] -> [[Float]] -> IO()
+printSepXYZ file numberOfAtoms [] [] = return ()
+printSepXYZ file numberOfAtoms (e:[]) ((x:y:z:_):[]) = hPutStrLn file (e ++ "     " ++ (show x) ++ "     " ++ (show y) ++ "     " ++ (show z))
+printSepXYZ file numberOfAtoms (e:et) (c:ct) = if (length (et) == (numberOfAtoms - 1))
+						  then do
+						    hPutStrLn file (show numberOfAtoms ++ "\n")
+						    printSepXYZ file numberOfAtoms [e] [c]
+						    printSepXYZ file numberOfAtoms et ct
+						  else do
+						    printSepXYZ file numberOfAtoms [e] [c]
+						    printSepXYZ file numberOfAtoms et ct
+
+{- printMDXYZ takes a file handle, a list with elements where outer layer is the MDStep, and a list of geometries
+an prints them to a XYZ-trajectory-file -}
+printMDXYZ :: Handle -> Int -> [[String]] -> [[[Float]]] -> IO()
+printMDXYZ file numberOfAtoms [] [] = return ()
+printMDXYZ file numberOfAtoms (e:[]) (c:[]) = printSepXYZ file numberOfAtoms e c
+printMDXYZ file numberOfAtoms (e:et) (c:ct) = do printSepXYZ file numberOfAtoms e c
+						 printMDXYZ file numberOfAtoms et ct
