@@ -62,5 +62,9 @@ main = do
 printOrderedXYZs :: Handle -> [((String, String), [Float])] -> IO()
 printOrderedXYZs file [] = return ()
 printOrderedXYZs file (((a,b),(x:y:z:_)):[]) = hPutStrLn file (a ++ b ++ "    " ++ show x ++ "    " ++ show y ++ "    " ++ show z)
-printOrderedXYZs file (a:at) = do printOrderedXYZs file [a]
-				  printOrderedXYZs file at
+printOrderedXYZs file (a:at) = if ( (fst (fst a)) == (fst (fst (at!!0))))
+				  then do printOrderedXYZs file [a]
+					  printOrderedXYZs file at
+				  else do printOrderedXYZs file [a]
+					  hPutStr file "\n"
+					  printOrderedXYZs file at
