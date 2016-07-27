@@ -14,16 +14,16 @@ HINCLUDE	= ../modules
 all: ch_geomana ch_geomalign ch_geom2molc ch_geomcut
 
 ch_geomana:
-	cd ch_geomana ; $(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_GeomAna
+	cd ch_geomana && $(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_GeomAna
 
 ch_geomalign:
-	cd ch_geomalign ; $(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_GeomAlign
+	cd ch_geomalign && $(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_GeomAlign
 
 ch_geom2molc:
-	cd ch_geom2molc ; $(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_Geom2Molc
+	cd ch_geom2molc && $(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_Geom2Molc
 
 ch_geomcut:
-	cd ch_geomcut ; $(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_GeomCut
+	cd ch_geomcut && $(HC) -i$(HINCLUDE) --make $(HFLAGS) Ch_GeomCut
 
 # cleaning up the directories
 clean: clean_ch_geomana clean_ch_geomalign clean_ch_geom2molc clean_ch_geomcut clean_modules

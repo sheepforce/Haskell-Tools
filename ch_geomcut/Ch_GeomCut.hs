@@ -43,8 +43,6 @@ main = do
       persistenElementsIndex = sphericalElements molecularGeometry midpoint formsize molecularRawElements
       molecularElementsCut = [getElement trajRawContents a | a <- [1..(nAtoms trajRawContents)], elem a persistenElementsIndex]
   
-  print (length molecularElementsCut)
-  print (length molecularGeometryCut)
   -- prints the monitored list
   if (outputFile == "stdout")
      then do
