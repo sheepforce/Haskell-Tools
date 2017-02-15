@@ -129,8 +129,8 @@ writeMs file (a:b) = do writeMsLine file a
 -- write out a single line of the ms
 writeMsLine :: Handle -> MsLine -> IO()
 writeMsLine file a = do
-  hPrintf file "%.10s , " (show $ localDay $ measuringTime a)
-  hPrintf file "%.12s , " (show $ localTimeOfDay $ measuringTime a)
+  hPrintf file "%10s , " (show $ localDay $ measuringTime a)
+  hPrintf file "%12s , " (show $ localTimeOfDay $ measuringTime a)
   hPrintf file "%+8.3f , " (mass a)
   hPrintf file "%+10.4e\n" (intensity a)
 
@@ -180,13 +180,21 @@ listIntensityPrint handle (a:b) =
      else do
        hPrintf handle "%+10.4e , " a
        listIntensityPrint handle b
-{-
+
 -- takes all masses in the spectrum and prints them
 trendMassesPrint :: Handle -> MS -> IO()
 trendMassesPrint file ms = do
+  hPrintf file "%-24s  , " "#"
+  printMasses file trendmasses
   where
     trendmasses = sort $ nub $ map mass $ massdata ms
-    -}
+    printMasses :: Handle -> [Double] -> IO()
+    printMasses file [] = return ()
+    printMasses file [a] = hPrintf file "%11.3f , \n" a
+    printMasses file (a:b) = do 
+      hPrintf file "%11.3f , " a
+      printMasses file b
+    
   
 
 -- write out the data depending on type of measurement, completeness parameter and output
@@ -202,11 +210,12 @@ writeData ms path completeness
     outputHandle <- openFile path WriteMode
     writeMs outputHandle (massdata $ reduceMs ms)
     hClose outputHandle
-  | (masstype ms) == Trend && path == "stdout" = do
-    
+  | (masstype ms) == Trend && path == "stdout" = do    
+    trendMassesPrint stdout ms
     writeTrend stdout ms
   | (masstype ms) == Trend && path /= "stdout" = do
     outputHandle <- openFile path WriteMode
+    trendMassesPrint outputHandle ms
     writeTrend outputHandle ms
     hClose outputHandle
   | otherwise = print "Schafe"
