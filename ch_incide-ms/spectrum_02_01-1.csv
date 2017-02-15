@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<ConfigurationData>
+   <CommunicationParameters
+      Port="COM1"
+      Baud="115200"
+      PacketFrequency="5.0"
+      PacketTimeout="1.0"
+      CommunicationsType="1"
+      UserFrequency="5.0"
+      UserTimeout="1.0"
+      NamedPort=""
+   />
+
+   <ConfigurationParameters
+      Filename="C:\Users\INCIDE\Desktop\RGA CONFIG FILES\1-50amu.cfg"
+      Description="Air Leak + PTA"
+      TimeStamp="07e1000200030001000c000b003102ef"
+      DateTime="01.02.2017 12:11:49"
+      Caption="6500"
+      Serial="6500"
+      Model="300"
+   />
+
+   <ScanParameters
+      ScanSpeed="24"
+      LowMass="1"
+      HighMass="50"
+      SamplesPerAMU="10"
+   />
+
+   <OperatingParameters
+      Mode="Mass sweep"
+      Focus1="-17"
+      Focus2="-68"
+      ElectronEnergy="70"
+      FilamentEmission="2.0"
+      AutoZero="Per sample"
+      ScanMode="Sweep"
+      Filament="1"
+      PressureUnits="Torr"
+      EnableElectronMultiplier="0"
+      MultiplierVoltage="1075"
+      FilamentForceOffStartup="0"
+   />
+
+   <CalibrationParameters
+      LowCalMass="1"
+      LowCalResolution="610"
+      LowCalPosition="0.44"
+      LowCalIonEnergy="5.0"
+      HighCalMass="300"
+      HighCalResolution="2055"
+      HighCalPosition="0.53"
+      HighCalIonEnergy="5.0"
+      TotalAmpOffset="2000"
+      PartialAmpOffset="2100"
+      TotalIntegratingCap="10.00"
+      PartialIntegratingCap="3.00"
+      RFSettleTime="50"
+      SWSettleTime="10"
+      Pirani1ATM="1.88700"
+      PiraniZero="0.28200"
+      PiraniAutoRecalibrate="0"
+      PartialSensitivity="6.00e-004"
+      TotalSensitivity="1.00e+001"
+      debug="0"
+   />
+
+   <LogFileParameters
+      Mode="1"
+      FileName="D:\INCIDE\spectrum_02_01-1.csv"
+      DirectoryName=""
+      CreationOption="0"
+      NSweeps="1"
+      FileRecordingOn="1"
+   />
+
+
+   <PrintingParameters
+      InvertColors="1"
+      ShowConfigurationFile="1"
+      ShowDescription="1"
+      ShowTotalPressure="1"
+      ShowPiraniPressure="1"
+      DateFormat=""
+      TimeFormat=""
+   />
+
+
+   <WindowParameters>
+       <Frame
+            flags="2"
+            showCmd="3"
+            ptMinPosition.x="-1"
+            ptMinPosition.y="-1"
+            ptMaxPosition.x="-8"
+            ptMaxPosition.y="-30"
+            rcNormalPosition.left="26"
+            rcNormalPosition.top="68"
+            rcNormalPosition.right="910"
+            rcNormalPosition.bottom="417"
+       />
+       <Setup
+            flags="0"
+            showCmd="1"
+            ptMinPosition.x="-1"
+            ptMinPosition.y="-1"
+            ptMaxPosition.x="-1"
+            ptMaxPosition.y="-1"
+            rcNormalPosition.left="1073"
+            rcNormalPosition.top="50"
+            rcNormalPosition.right="1916"
+            rcNormalPosition.bottom="1043"
+       />
+       <Main
+            flags="2"
+            showCmd="3"
+            ptMinPosition.x="-1"
+            ptMinPosition.y="-1"
+            ptMaxPosition.x="-1"
+            ptMaxPosition.y="-1"
+            rcNormalPosition.left="25"
+            rcNormalPosition.top="25"
+            rcNormalPosition.right="1465"
+            rcNormalPosition.bottom="875"
+       />
+   </WindowParameters>
+
+   <PlotParameters
+      BkColor="Sky blue"
+      LineColor="Red"
+      ScanColor="Green"
+      MouseWheel="0"
+      LogYAxis="0"
+   />
+
+</ConfigurationData>
+2017/02/01 12:11:49.891,    0.600,  1.5037e-009,
+2017/02/01 12:11:49.974,    0.700,  1.4979e-009,
+2017/02/01 12:11:50.057,    0.800,  1.5168e-009,
+2017/02/01 12:11:50.057,    0.600,  1.5168e-009,

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<ConfigurationData>
+   <CommunicationParameters
+      Port="COM1"
+      Baud="115200"
+      PacketFrequency="5.0"
+      PacketTimeout="1.0"
+      CommunicationsType="1"
+      UserFrequency="5.0"
+      UserTimeout="1.0"
+      NamedPort=""
+   />
+
+   <ConfigurationParameters
+      Filename="C:\Users\INCIDE\Desktop\RGA CONFIG FILES\1-50amu.cfg"
+      Description="Air Leak + PTA"
+      TimeStamp="07e1000200010006000c00140022032e"
+      DateTime="06.02.2017 12:20:34"
+      Caption="6500"
+      Serial="6500"
+      Model="300"
+   />
+
+   <ScanParameters
+      ScanSpeed="24"
+      LowMass="1"
+      HighMass="50"
+      SamplesPerAMU="10"
+   />
+
+   <OperatingParameters
+      Mode="Trend"
+      Focus1="-17"
+      Focus2="-68"
+      ElectronEnergy="70"
+      FilamentEmission="2.0"
+      AutoZero="Per sample"
+      ScanMode="Sweep"
+      Filament="1"
+      PressureUnits="Torr"
+      EnableElectronMultiplier="0"
+      MultiplierVoltage="1075"
+      FilamentForceOffStartup="0"
+   />
+
+   <CalibrationParameters
+      LowCalMass="1"
+      LowCalResolution="610"
+      LowCalPosition="0.44"
+      LowCalIonEnergy="5.0"
+      HighCalMass="300"
+      HighCalResolution="2055"
+      HighCalPosition="0.53"
+      HighCalIonEnergy="5.0"
+      TotalAmpOffset="2000"
+      PartialAmpOffset="2100"
+      TotalIntegratingCap="10.00"
+      PartialIntegratingCap="3.00"
+      RFSettleTime="50"
+      SWSettleTime="10"
+      Pirani1ATM="1.88700"
+      PiraniZero="0.28200"
+      PiraniAutoRecalibrate="0"
+      PartialSensitivity="6.00e-004"
+      TotalSensitivity="1.00e+001"
+      debug="0"
+   />
+
+   <LogFileParameters
+      Mode="1"
+      FileName="D:\INCIDE\spectrum_02_06-12.csv"
+      DirectoryName=""
+      CreationOption="0"
+      NSweeps="1"
+      FileRecordingOn="1"
+   />
+
+
+   <PrintingParameters
+      InvertColors="1"
+      ShowConfigurationFile="1"
+      ShowDescription="1"
+      ShowTotalPressure="1"
+      ShowPiraniPressure="1"
+      DateFormat=""
+      TimeFormat=""
+   />
+
+
+   <WindowParameters>
+       <Frame
+            flags="2"
+            showCmd="3"
+            ptMinPosition.x="-1"
+            ptMinPosition.y="-1"
+            ptMaxPosition.x="-8"
+            ptMaxPosition.y="-30"
+            rcNormalPosition.left="26"
+            rcNormalPosition.top="68"
+            rcNormalPosition.right="910"
+            rcNormalPosition.bottom="417"
+       />
+       <Setup
+            flags="0"
+            showCmd="1"
+            ptMinPosition.x="-1"
+            ptMinPosition.y="-1"
+            ptMaxPosition.x="-1"
+            ptMaxPosition.y="-1"
+            rcNormalPosition.left="1073"
+            rcNormalPosition.top="50"
+            rcNormalPosition.right="1916"
+            rcNormalPosition.bottom="1043"
+       />
+       <Main
+            flags="2"
+            showCmd="3"
+            ptMinPosition.x="-1"
+            ptMinPosition.y="-1"
+            ptMaxPosition.x="-1"
+            ptMaxPosition.y="-1"
+            rcNormalPosition.left="50"
+            rcNormalPosition.top="50"
+            rcNormalPosition.right="1490"
+            rcNormalPosition.bottom="900"
+       />
+   </WindowParameters>
+
+   <PlotParameters
+      BkColor="Sky blue"
+      LineColor="Red"
+      ScanColor="Green"
+      MouseWheel="0"
+      LogYAxis="0"
+   />
+
+</ConfigurationData>
+2017/02/06 12:20:35.100,   18.000,  5.6177e-011,
+2017/02/06 12:20:35.308,   28.000,  1.3997e-010,
+2017/02/06 12:20:35.517,   32.000,  4.2076e-011,
+2017/02/06 12:20:35.725,   44.000,  3.0748e-011,
+2017/02/06 12:20:35.933,   18.000,  5.6750e-011,
+2017/02/06 12:20:36.142,   28.000,  1.6722e-010,
+2017/02/06 12:20:36.350,   32.000,  2.2329e-011,
+2017/02/06 12:20:36.558,   44.000,  3.3784e-011,
+2017/02/06 12:20:36.766,   18.000,  3.7638e-011,
+2017/02/06 12:20:36.975,   28.000,  1.1118e-010,
+2017/02/06 12:20:37.183,   32.000,  5.8255e-011,
+2017/02/06 12:20:37.392,   44.000,  2.2379e-011,
+2017/02/06 12:20:37.600,   18.000,  2.9946e-011,
+2017/02/06 12:20:37.808,   28.000,  9.6714e-011,
+2017/02/06 12:20:38.017,   32.000,  2.2844e-011,
+2017/02/06 12:20:38.225,   44.000,  2.5086e-011,
+2017/02/06 12:20:38.433,   18.000,  4.2172e-011,
+2017/02/06 12:20:38.642,   28.000,  1.3512e-010,
+
