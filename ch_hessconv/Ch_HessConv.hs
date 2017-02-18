@@ -62,7 +62,14 @@ main = do
   
   let nwHessLowerOnly = parseOnly nwchemHessParser nwHessFromFile
   
-  print nwHessLowerOnly
+  let initInd = triangularIndexMaker 2
+      initVal = [1.0, 2.0 .. 3.0] :: [Double]
+      initMat = replicate 2 $ replicate 2 0.0 :: [[Double]]
+  
+  print $ fillMatrix initInd initVal [initMat]
+  
+  
+  --print nwHessLowerOnly
 
 
 {- ############################## -}
@@ -110,20 +117,26 @@ setValueInMatrix (i,j) value matrix = rowsHead ++ [rowSubs] ++ rowsTail
 {-
 expandLowerTriangularToSquare :: [Double] -> [[Double]]
 expandLowerTriangularToSquare lowerValues = fillMatrix inputIndizes lowerValues initialMatrix
-  where 
-    dim = triangularMatrixSize (length lowerValues)
-    initialMatrix = replicate dim $ replicate dim 0.0
-    inputIndizes = triangularIndexMaker dim
 -}
 
-fillMatrix :: [(Int,Int)] -> [Double] -> [[[Double]]] -> [[[Double]]]
+{- THIS IS A STRANGE FUNCTION WHICH I DO NOT UNDERSTAND FULLY BUT IT WORKS!
+give a list of indices, the corresponding list of values (has obviously to be
+of the same length) and a initialMatrix (which has to be put in a containing list. 
+It will fill the values in the matrix at the positions given by the indices. 
+It will return the the completed matrix and original matrix -}
+fillMatrix :: [(Int,Int)] -> [a] -> [[[a]]] -> [[[a]]]
 fillMatrix [ind] [val] mat = (setValueInMatrix ind val (head mat)) : mat
-fillMatrix (indF:indR) (valF:valR) mat = prependMat : appendMat
-  where prependMat = (setValueInMatrix indF valF (head mat)) 
-	appendMat = fillMatrix indR valR [prependMat]
+fillMatrix (indF:indR) (valF:valR) [mat] = (head nextItMats) : [mat]
+  where 
+    thisItMat = setValueInMatrix indF valF mat
+    nextItMats = fillMatrix indR valR [thisItMat]
+fillMatrix (indF:indR) (valF:valR) mat = (head nextItMats) : thisItMat : mat
+  where 
+    thisItMat = setValueInMatrix indF valF (head mat)
+    nextItMats = fillMatrix indR valR [thisItMat]
 
-
-
+invertIndices :: (Int,Int) -> (Int,Int)
+invertIndices (a,b) = (b,a)
 
 {-
 -- take the lower triangular matrix and expand to complete matrix
