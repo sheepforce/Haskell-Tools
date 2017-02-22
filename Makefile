@@ -50,11 +50,12 @@ clean_ch_incidems:
 	cd ch_incide-ms && rm -f Ch_Incide_ms.hi Ch_Incide_ms.o Ch_Incide_ms_Opts.hi Ch_Incide_ms_Opts.o Ch_Incide_ms
 
 clean_ch_hessconv:
-	cd ch_hessconv && rm -f Ch_HessConv.hi Ch_HessConv.o Ch_HessConv.hi Ch_HessConv.o Ch_HessConv
+	cd ch_hessconv && rm -f Ch_HessConv.hi Ch_HessConv.o Ch_HessConv.hi Ch_HessConv_Opts.o Ch_HessConv_Opts.hi Ch_HessConv
 
 clean_modules:
 	cd modules && rm -f Algebra.o Algebra.hi
 	cd modules/Chemistry && rm -f XYZ.o XYZ.hi
+	cd modules/Data/Chemistry && rm -f XYZ.o XYZ.hi
 
 
 # install the executables
