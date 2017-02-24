@@ -59,7 +59,7 @@ clean_modules:
 
 
 # install the executables
-install: install_clean_ch_geomana install_ch_geomalign install_ch_geom2molc install_ch_geomcut install_ch_incidems
+install: install_clean_ch_geomana install_ch_geomalign install_ch_geom2molc install_ch_geomcut install_ch_incidems install_ch_hessconv
 
 install_clean_ch_geomana:
 	cp ch_geomana/Ch_GeomAna $(PREFIX)/ch_geomana
@@ -75,3 +75,6 @@ install_ch_geomcut:
 
 install_ch_incidems:
 	cp ch_incide-ms/Ch_Incide_ms $(PREFIX)/ch_incide-ms
+
+install_ch_hessconv:
+	cp ch_hessconv/Ch_HessConv $(PREFIX)/ch_hessconv

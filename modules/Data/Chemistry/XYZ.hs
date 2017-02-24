@@ -1,24 +1,28 @@
 module Data.Chemistry.XYZ
-( xyzParser
---, getCoordFromLine
---, getCoordFromAtom
---, trajAtomLines
---, trajAtomCoordList
---, getElement
---, getGeometriesFromTraj
---
---, printSepXYZ
---, printMDXYZ
+( XYZ(..)
+, xyzParser
+, getNAtoms
+, getElements
+, getCoords
 ) where
 import System.IO
 import Data.Attoparsec.ByteString.Char8
 import Control.Applicative
 import qualified Data.ByteString.Char8 as BS
 
+
+{- ################# -}
+{- define Data Types -}
+{- ################# -}
+
 data XYZ = XYZ { nAtoms :: Int
                , comment :: String
                , xyzcontent :: [(String,Double,Double,Double)]
                } deriving Show
+
+{- ###### -}
+{- Parser -}
+{- ###### -}
 
 xyzParser :: Parser XYZ
 xyzParser = do
@@ -48,3 +52,24 @@ xyzParser = do
 	many' $ char ' '
 	many' endOfLine
 	return $ (element,x,y,z)
+
+
+{- ################################ -}
+{- Functions to work with XYZ files -}
+{- ################################ -}
+
+getNAtoms :: XYZ -> Int
+getNAtoms a = nAtoms a
+
+getElement :: (String,Double,Double,Double) -> String
+getElement (e,x,y,z) = e
+
+getElements :: XYZ -> [String]
+getElements a = map getElement $ xyzcontent a
+
+getCoord :: (String,Double,Double,Double) -> (Double,Double,Double)
+getCoord (e,x,y,z) = (x,y,z)
+
+getCoords :: XYZ -> [(Double,Double,Double)]
+getCoords a = map getCoord $ xyzcontent a
+

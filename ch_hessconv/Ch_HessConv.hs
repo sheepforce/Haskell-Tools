@@ -10,7 +10,7 @@ import qualified Data.ByteString.Char8 as B
 import qualified Numeric.LinearAlgebra as BLAS
 import qualified Numeric.LinearAlgebra.Data as BLAS
 import Ch_HessConv_Opts
-import Data.Chemistry.XYZ
+import qualified Data.Chemistry.XYZ as XYZ
 
 {- ################ -}
 {- Type Definitions -}
@@ -101,8 +101,8 @@ main = do
   let inputfile = input arguments
       outputfile = output arguments
       addinputfile = addInput arguments
-      inFormat = inputFormat arguments
-      outFormat = outputFormat arguments
+      inFormat = readFormat arguments
+      outFormat = writeFormat arguments
   
   -- give a fortran notation zero for creation of dummy matrices
   let fortranZero = FortranDouble { fortranDoubleBase = 0.0
@@ -110,15 +110,86 @@ main = do
                                   , fortranDoubleExponent = 0
                                   }
   
-  -- read the additional input
-  addInput <- readFile "nw.xyz"
-  -- decide what to do with the additional file based on input and outFormat
+  -- read and process the hessian input file
+  hessFromFile <- B.readFile inputfile
+  fullHessianFortran <- case inFormat of
+			     "nwchem" -> do
+			       let -- this contains just the lower left triangle of the full Hessian
+			           nwHessLowerOnly = eliminate $ parseOnly nwchemHessParser hessFromFile
+			           -- dimensions the square hessian matrix will have (n * n) from the number of elements in the lower triangle
+			           nwHessDim = triangularMatrixSize (length nwHessLowerOnly)
+			           -- create a zero-filled dummy matrix
+			           nwInitMat = replicate nwHessDim $ replicate nwHessDim fortranZero
+			           -- make the list of indices of the lower triangle in NWChem input/output order
+			           nwLowerInd = triangularIndexMaker nwHessDim
+			           -- the full hessian in internal format for printing
+			           fullNWHessianFortran = expandLowerTriangularToSquare nwHessLowerOnly nwInitMat
+			           fullNWHessianHaskell = map (map fD2hD) fullNWHessianFortran
+			       return (fullNWHessianFortran)
+			     "dalton" -> do
+			       let -- this contains the full Hessian
+			           dalHessian = eliminate $ parseOnly daltonHessParser hessFromFile
+			           -- dimensions the square hessian matrix will have (n * n) from the number of elements in the lower triangle
+			           dalHessDim = daltonHessDimension dalHessian
+			           -- create a zero-filled dummy matrix
+			           dalInitMat = replicate dalHessDim $ replicate dalHessDim 0.0 :: [[Double]]
+			           -- make the list of indices of the lower triangle in Dalton input/output order
+			           dalInd = squareIndexMaker dalHessDim
+			           -- the full hessian in internal format for printing
+			           fullDalHessianHaskell = head $ fillMatrix dalInd (daltonHessValues dalHessian) [dalInitMat]
+			           fullDalHessianFortran = map (map hD2fD) fullDalHessianHaskell
+			       return (fullDalHessianFortran)
+			       
   
-  -- read coordinates from additional Input
-  let nwcoordinates = getGeometriesFromTraj addInput 1
-
-  print nwcoordinates
+  case outFormat of
+       "nwchem" -> do
+	 -- creat indizes for Output writing
+	 let nwLowerInd = triangularIndexMaker (length fullHessianFortran)
+	 -- is the output stdout?
+	 if (outputfile == "stdout")
+           then do
+	     -- write NWChem stlye hessian to stdout
+	     writeNWHessian stdout nwLowerInd fullHessianFortran
+	   else do
+	     outputHandle <- openFile outputfile WriteMode
+	     writeNWHessian outputHandle nwLowerInd fullHessianFortran
+	     hClose outputHandle
+       "dalton" -> do
+	 let dalInd = squareIndexMaker (length fullHessianFortran)
+	 case inFormat of 
+              -- if nwchem input the geometry has to be read from an xyz file
+              "nwchem" -> do
+		xyzContent <- B.readFile addinputfile
+		-- convert the parsed XYZ-File in XYZ.XYZ format to plain list of doubles
+		let xyzData = eliminate $ parseOnly XYZ.xyzParser xyzContent
+		    xyzCoords = XYZ.getCoords xyzData
+		    xyzCoordsAsListList = map singleCoordTuple2List xyzCoords
+		    xyzCoordsAsList = [xyzCoordsAsListList !! atom !! direction | atom <- [0 .. ((length xyzCoordsAsListList) - 1)], direction <- [0 .. 2]]
+		    -- create a DaltonHessian from the internal hessian format and the geometry from the xyz file
+		    dalOutHess = DaltonHess { daltonHessDimension = (length fullHessianFortran)
+                                            , daltonHessValues = map fD2hD [fullHessianFortran !! i !! j | i <- [0 .. ((length fullHessianFortran) - 1)], j <- [0 .. ((length fullHessianFortran) - 1)]]
+                                            , daltonHessGeom = xyzCoordsAsList
+                                            }
+                -- write the Dalton hessian from NWChem input
+                if (outputfile == "stdout")
+		   then do
+		     writeDaltonHessian stdout dalInd fullHessianFortran dalOutHess
+		   else do
+		     outputHandle <- openFile outputfile WriteMode
+		     writeDaltonHessian outputHandle dalInd fullHessianFortran dalOutHess
+		     hClose outputHandle
+              "dalton" -> do
+		let dalHessian = eliminate $ parseOnly daltonHessParser hessFromFile
+		if (outputfile == "stdout")
+                   then do
+		     writeDaltonHessian stdout dalInd fullHessianFortran dalHessian
+		   else do
+		     outputHandle <- openFile outputfile WriteMode
+		     writeDaltonHessian outputHandle dalInd fullHessianFortran dalHessian
+		     hClose outputHandle
   
+  
+{-    
   -- if Input is NWChem, do the following
   -- read the hessian from the file
   nwHessFromFile <- B.readFile "nw.hess"
@@ -149,6 +220,7 @@ main = do
       -- the full hessian in internal format for printing
       fullDalHessianHaskell = head $ fillMatrix dalInd (daltonHessValues dalHessian) [dalInitMat]
       fullDalHessianFortran = map (map hD2fD) fullDalHessianHaskell
+
   
   
   
@@ -161,7 +233,8 @@ main = do
   writeNWHessian stdout nwLowerInd fullDalHessianFortran
   print "Dalton Hessian in Dalton Format"
   writeDaltonHessian stdout dalInd fullDalHessianFortran dalHessian
-  
+-}  
+  --print "here be sheep!"
 
 {- ############################## -}
 {- Functions used in this program -}
@@ -189,11 +262,18 @@ writeNWHessian handle (a:b) hessian = do
       hessVal = getValueFromMatrix a hessian
 
 -- write FortranDouble to Dalton Double format in the hessian
-printHaskellDouble2DaltonNumber :: Handle -> FortranDouble -> IO()
-printHaskellDouble2DaltonNumber handle number = do
+printFortranDouble2DaltonNumber :: Handle -> FortranDouble -> IO()
+printFortranDouble2DaltonNumber handle number = do
   hPrintf handle "  %19.16f" (fortranDoubleBase number)
   hPrintf handle "%c%c" 'E' (fortranDoubleExponentSign number)
   hPrintf handle "%03d\n" (fortranDoubleExponent number)
+
+writeDaltonGeomInHess :: Handle -> [FortranDouble] -> IO()
+writeDaltonGeomInHess handle [a] = printFortranDouble2DaltonNumber handle a
+writeDaltonGeomInHess handle (a:b) = do
+  printFortranDouble2DaltonNumber handle a
+  writeDaltonGeomInHess handle b
+  
 
 {- takes a file handle. a list of indices for the whole matrix, the full hessian in internal
 format and a hessian in internal dalton format (with dimension and geometry). Writes the hessian
@@ -201,9 +281,9 @@ to DALTON.HES format -}
 writeDaltonHessian :: Handle -> [(Int,Int)] -> [[FortranDouble]] -> DaltonHess -> IO()
 writeDaltonHessian handle [] dalHess linDalHess = return ()
 writeDaltonHessian handle [a] dalHess linDalHess = do
-  printHaskellDouble2DaltonNumber handle hessVal
+  printFortranDouble2DaltonNumber handle hessVal
   hPrintf handle "\n"
-  sequence_ [hPrintf handle "%20s\n" "cart geom be here (au)!" | x <- [1 .. (daltonHessDimension linDalHess)]]
+  writeDaltonGeomInHess handle (map hD2fD $ daltonHessGeom linDalHess)
     where
       hessVal = getValueFromMatrix a dalHess
 writeDaltonHessian handle (a:b) dalHess linDalHess
@@ -213,20 +293,20 @@ writeDaltonHessian handle (a:b) dalHess linDalHess
     -- is this the last value in one column? If yes insert newline
     if (fst a == ((daltonHessDimension linDalHess) - 1))
        then do
-	 printHaskellDouble2DaltonNumber handle hessVal 
+	 printFortranDouble2DaltonNumber handle hessVal 
 	 hPrintf handle "\n"
 	 writeDaltonHessian handle b dalHess linDalHess
        else do
-	 printHaskellDouble2DaltonNumber handle hessVal
+	 printFortranDouble2DaltonNumber handle hessVal
 	 writeDaltonHessian handle b dalHess linDalHess
   | otherwise= do
     if (fst a == ((daltonHessDimension linDalHess) - 1))
        then do
-	 printHaskellDouble2DaltonNumber handle hessVal 
+	 printFortranDouble2DaltonNumber handle hessVal 
 	 hPrintf handle "\n"
 	 writeDaltonHessian handle b dalHess linDalHess
        else do
-	 printHaskellDouble2DaltonNumber handle hessVal
+	 printFortranDouble2DaltonNumber handle hessVal
 	 writeDaltonHessian handle b dalHess linDalHess
   where
     hessVal = getValueFromMatrix a dalHess
@@ -276,7 +356,6 @@ expandLowerTriangularToSquare lowerValues initMat = head $ fillMatrix (map inver
     initInd = triangularIndexMaker dim
     dim = triangularMatrixSize (length lowerValues)
 
-
 {- THIS IS A STRANGE FUNCTION WHICH I DO NOT UNDERSTAND FULLY BUT IT WORKS!
 give a list of indices, the corresponding list of values (has obviously to be
 of the same length) and a initialMatrix (which has to be put in a containing list. 
@@ -315,3 +394,7 @@ hD2fD a
                                    , fortranDoubleExponentSign = '+'
                                    , fortranDoubleExponent = abs $ floor $ logBase 10.0 (abs a)
                                    }
+
+-- convert a 3 element coordinate tuple to a list
+singleCoordTuple2List :: (Double,Double,Double) -> [Double]
+singleCoordTuple2List (x,y,z) = [x,y,z]
