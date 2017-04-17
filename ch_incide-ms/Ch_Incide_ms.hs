@@ -6,9 +6,10 @@ import Data.Time
 import System.IO
 import System.Environment
 import System.Console.CmdArgs
-import Data.Attoparsec.ByteString.Char8
+import Data.Attoparsec.Text.Lazy
 import Control.Applicative
-import qualified Data.ByteString.Char8 as B
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
 import Ch_Incide_ms_Opts
 
 
@@ -60,8 +61,8 @@ timeParser = do
 -- get the operation type from the xml-Header
 xmlMeasurementParser :: Parser Measurement
 xmlMeasurementParser = do
-  manyTill anyChar (string $ B.pack "Mode=\"")
-  ((string (B.pack "Trend\"") >> return Trend) <|> (string (B.pack "Mass sweep\"") >> return MassSpectrum))
+  manyTill anyChar (string $ T.pack "Mode=\"")
+  ((string (T.pack "Trend\"") >> return Trend) <|> (string (T.pack "Mass sweep\"") >> return MassSpectrum))
 
 -- parse a line of MS data
 msLineParser :: Parser MsLine
@@ -81,7 +82,7 @@ msLineParser = do
 msParser :: Parser MS
 msParser = do
   temp_type <- xmlMeasurementParser
-  manyTill anyChar (string $ B.pack "</ConfigurationData>")
+  manyTill anyChar (string $ T.pack "</ConfigurationData>")
   endOfLine
   temp_data <- many $ msLineParser <* (endOfLine <|> endOfInput)
   return $ MS { masstype = temp_type
@@ -103,7 +104,7 @@ main = do
       completespec = complete arguments
   
   -- read the input file
-  spectrumRaw <- B.readFile inputfile
+  spectrumRaw <- T.readFile inputfile
   
   -- parse the ms data
   let msdata = eliminate $ parseOnly msParser spectrumRaw

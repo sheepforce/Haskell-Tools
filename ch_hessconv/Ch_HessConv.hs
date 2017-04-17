@@ -4,9 +4,10 @@ import Text.Printf
 import System.IO
 import System.Environment
 import System.Console.CmdArgs
-import Data.Attoparsec.ByteString.Char8
+import Data.Attoparsec.Text.Lazy
 import Control.Applicative
-import qualified Data.ByteString.Char8 as B
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
 import qualified Numeric.LinearAlgebra as BLAS
 import qualified Numeric.LinearAlgebra.Data as BLAS
 import Ch_HessConv_Opts
@@ -111,7 +112,7 @@ main = do
                                   }
   
   -- read and process the hessian input file
-  hessFromFile <- B.readFile inputfile
+  hessFromFile <- T.readFile inputfile
   fullHessianFortran <- case inFormat of
 			     "nwchem" -> do
 			       let -- this contains just the lower left triangle of the full Hessian
@@ -159,7 +160,7 @@ main = do
 	 case inFormat of 
               -- if nwchem input the geometry has to be read from an xyz file
               "nwchem" -> do
-		xyzContent <- B.readFile addinputfile
+		xyzContent <- T.readFile addinputfile
 		-- convert the parsed XYZ-File in XYZ.XYZ format to plain list of doubles
 		let xyzData = eliminate $ parseOnly XYZ.xyzParser xyzContent
 		    xyzCoords = XYZ.getCoords xyzData
@@ -192,7 +193,7 @@ main = do
 {-    
   -- if Input is NWChem, do the following
   -- read the hessian from the file
-  nwHessFromFile <- B.readFile "nw.hess"
+  nwHessFromFile <- T.readFile "nw.hess"
   let -- parse the file and store it in nwHessLowerOnly
       -- this contains just the lower left triangle of the full Hessian
       nwHessLowerOnly = eliminate $ parseOnly nwchemHessParser nwHessFromFile
@@ -207,7 +208,7 @@ main = do
       fullNWHessianHaskell = map (map fD2hD) fullNWHessianFortran
   
   
-  dalHessFromFile <- B.readFile "dal.hes"
+  dalHessFromFile <- T.readFile "dal.hes"
   let -- parse the file and store it in dalHessian
       -- this contains the full Hessian
       dalHessian = eliminate $ parseOnly daltonHessParser dalHessFromFile

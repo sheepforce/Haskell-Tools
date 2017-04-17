@@ -6,9 +6,10 @@ module Data.Chemistry.XYZ
 , getCoords
 ) where
 import System.IO
-import Data.Attoparsec.ByteString.Char8
+import Data.Attoparsec.Text.Lazy
 import Control.Applicative
-import qualified Data.ByteString.Char8 as BS
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
 
 
 {- ################# -}
