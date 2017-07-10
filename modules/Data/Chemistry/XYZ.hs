@@ -4,12 +4,15 @@ module Data.Chemistry.XYZ
 , getNAtoms
 , getElements
 , getCoords
+, printXYZ
 ) where
 import System.IO
 import Data.Attoparsec.Text.Lazy
 import Control.Applicative
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
+import System.IO
+import Text.Printf
 
 
 {- ################# -}
@@ -74,3 +77,12 @@ getCoord (e,x,y,z) = (x,y,z)
 getCoords :: XYZ -> [(Double,Double,Double)]
 getCoords a = map getCoord $ xyzcontent a
 
+printXYZ :: Handle -> XYZ ->  IO ()
+printXYZ xyzhandle xyz = do
+    hPrint xyzhandle $ nAtoms xyz
+    hPrint xyzhandle $ comment xyz
+    mapM_ (\(e, x, y, z) -> do
+        hPrintf xyzhandle "%-4s" e
+        hPrintf xyzhandle "%+16.8f    " x
+        hPrintf xyzhandle "%+16.8f    " y
+        hPrintf xyzhandle "%+16.8f\n" z) (xyzcontent xyz)
